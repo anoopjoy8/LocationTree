@@ -19,7 +19,7 @@
 <cffunction name="processTreeNode" output="true">
     <cfargument name="location_Id" type="numeric" />
     <cfargument name="folderName" type="string" />
-    <!--- Check for any nodes that have *this* node as a parent --->
+
     <cfquery name="LOCAL.qFindChildren" dbtype="query">
         select id as locationId , location_name 
         as location_Name
@@ -28,9 +28,7 @@
     </cfquery>
     <li>#arguments.folderName# <br>
         <cfif LOCAL.qFindChildren.recordcount >
-            <!--- We have another list! --->
             <ul>
-                <!--- We have children, so process these first --->
                 <cfloop query="LOCAL.qFindChildren">
                     <!--- Recursively call function --->
                     <cfset processTreeNode(location_Id=LOCAL.qFindChildren.locationId,folderName=LOCAL.qFindChildren.location_Name) />
