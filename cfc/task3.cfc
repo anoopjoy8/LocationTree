@@ -5,27 +5,26 @@
 </cfquery>
 
 <cfquery name="get_parent_locations" dbtype="query">
-    select id as LocId , location_name 
-    as LocName
+    select id as location_Id , location_name as location_Name
     from get_locations
     where parent_id is null
 </cfquery>
 
 <ul class="tree">
     <cfloop query="get_parent_locations">
-        <cfset processTreeNode(LocId=get_parent_locations.LocId, folderName=get_parent_locations.LocName) />
+        <cfset processTreeNode(location_Id=get_parent_locations.location_Id, folderName=get_parent_locations.location_Name) />
     </cfloop>
 </ul>
 
 <cffunction name="processTreeNode" output="true">
-    <cfargument name="LocId" type="numeric" />
+    <cfargument name="location_Id" type="numeric" />
     <cfargument name="folderName" type="string" />
     <!--- Check for any nodes that have *this* node as a parent --->
     <cfquery name="LOCAL.qFindChildren" dbtype="query">
-        select id as folder_id , location_name 
-        as LocName
+        select id as locationId , location_name 
+        as location_Name
         from get_locations
-        where parent_id = <cfqueryparam value="#arguments.LocId#" cfsqltype="cf_sql_integer" />
+        where parent_id = <cfqueryparam value="#arguments.location_Id#" cfsqltype="cf_sql_integer" />
     </cfquery>
     <li>#arguments.folderName# <br>
         <cfif LOCAL.qFindChildren.recordcount >
@@ -34,7 +33,7 @@
                 <!--- We have children, so process these first --->
                 <cfloop query="LOCAL.qFindChildren">
                     <!--- Recursively call function --->
-                    <cfset processTreeNode(LocId=LOCAL.qFindChildren.folder_id,folderName=LOCAL.qFindChildren.LocName) />
+                    <cfset processTreeNode(location_Id=LOCAL.qFindChildren.locationId,folderName=LOCAL.qFindChildren.location_Name) />
                 </cfloop>
             </ul>
         </cfif>
