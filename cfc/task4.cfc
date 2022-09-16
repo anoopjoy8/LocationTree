@@ -1,4 +1,3 @@
-
 <cfset local.inputId = 5/>
 <cfset local.parent_lists = "">
 <cfquery name="get_locations">

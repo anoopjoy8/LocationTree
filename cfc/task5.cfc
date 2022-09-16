@@ -1,5 +1,5 @@
 <cfset local.inputId = 1/>
-<cfset parent_lists = "">
+<cfset local.childLists = "">
 <cfquery name="get_locations">
     select id, parent_id, location_name 
     from location_tree
@@ -24,8 +24,9 @@
         where parent_id = <cfqueryparam value="#arguments.location_Id#" cfsqltype="cf_sql_integer" />
     </cfquery>
     <cfif arguments.location_Id NEQ  arguments.inputId>
-        <cfset parent_lists = ListAppend('#arguments.location_Id#','')>
-         #parent_lists# 
+        <cfset childLists = ListAppend('#arguments.location_Id#','')>
+        
+         #childLists# 
     </cfif>
             <cfif LOCAL.qFindChildren.recordcount>
                     <cfloop query="LOCAL.qFindChildren">
@@ -35,3 +36,4 @@
             </cfif>
 
 </cffunction>
+
