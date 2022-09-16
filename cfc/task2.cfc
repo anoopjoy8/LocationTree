@@ -1,69 +1,44 @@
-<cffunction name="getDepth" output="false" access="public">
-    <cfargument name="loc_id" type="string" required="false" default="" />
-    <cfset var chid = arguments.loc_id/>
-    <cfquery name="get_all_parents">
-            with recursive parent_users (id, parent_id, level) AS (
-            SELECT id, parent_id, 1 level
-            FROM location_tree
-            WHERE id = #chid#
-            union all
-            SELECT t.id, t.parent_id, level + 1
-            FROM location_tree t INNER JOIN parent_users pu
-            ON t.id = pu.parent_id
-            )
-            SELECT count(level) as depth FROM parent_users;           
+<cfquery name="get_locations">
+    select id, parent_id, location_name 
+    from location_tree
+</cfquery>
+
+<cfset processTreeNode(location_Id=5) />
+
+<cffunction name="processTreeNode" output="true">
+    <cfargument name="location_Id" type="numeric" />
+    <cfquery name="local.qFindChildren" dbtype="query">
+        select id as locationId , location_name 
+        as locationName,parent_id as parentId
+        from get_locations
+        where id = <cfqueryparam value="#arguments.location_Id#" cfsqltype="cf_sql_integer" />
     </cfquery>
-    <cfreturn get_all_parents />
+    <cfset processNextlevel(parent_Id=local.qFindChildren.parentId,count="0") />
 </cffunction>
 
-
-<cffunction name="getParents" output="false" access="public">
-    <cfargument name="loc_id" type="string" required="false" default="" />
-    <cfset var chid = arguments.loc_id/>
-    <cfquery name="get_all_parents">
-            with recursive parent_users (id, parent_id, level) AS (
-            SELECT id, parent_id, 1 level
-            FROM location_tree
-            WHERE id = #chid#
-            union all
-            SELECT t.id, t.parent_id, level + 1
-            FROM location_tree t INNER JOIN parent_users pu
-            ON t.id = pu.parent_id
-            )
-            SELECT * FROM parent_users WHERE parent_id IS NOT NULL;       
+<cffunction name="processNextlevel" output="true">
+    <cfargument name="parent_Id" type="numeric" />
+    <cfset local.count = arguments.count>
+    <cfquery name="local.qFindParent" dbtype="query">
+        select id as locationId , location_name 
+        as locationName,parent_id as parentId
+        from get_locations
+        where id = <cfqueryparam value="#arguments.parent_Id#" cfsqltype="cf_sql_integer" />
     </cfquery>
-    <cfsavecontent variable="parentIds">
-            <cfoutput query="get_all_parents">
-                <li>
-                        #get_all_parents.parent_id# 
-                </li>
-            </cfoutput>
-    </cfsavecontent>
-    <cfreturn parentIds />
+    <cfloop query="local.qFindParent">
+     <cfset local.count = local.count+1>
+            <cfif local.qFindParent.parentId neq "0">
+                <cfset processNextlevel(parent_Id=local.qFindParent.parentId,count=count) />
+            </cfif>
+            <cfif local.qFindParent.parentId eq "0">
+                <cfset local.deapth = local.count+1>
+                <cfset FinalResult(local.deapth) />
+            </cfif>
+    </cfloop>
+   
 </cffunction>
 
-
-<cffunction name="getChilds" output="false" access="public">
-    <cfargument name="loc_id" type="string" required="false" default="" />
-    <cfset var chid = arguments.loc_id/>
-    <cfquery name="get_all_childs">
-        SELECT *
-        FROM location_tree
-        WHERE parent_id = #chid#
-        UNION
-        SELECT * 
-        FROM location_tree
-        WHERE parent_id IN 
-        (SELECT ID FROM location_tree WHERE parent_id = #chid#)
-        Order BY id
-    </cfquery>
-
-    <cfsavecontent variable="childIds">
-        <cfoutput query="get_all_childs">
-            <li>
-                #get_all_childs.id# 
-            </li>
-        </cfoutput>
-    </cfsavecontent>
-    <cfreturn childIds />
+<cffunction name="FinalResult" output="true">
+   <cfargument name="deapthValue" type="numeric" /> 
+        #deapthValue#
 </cffunction>
