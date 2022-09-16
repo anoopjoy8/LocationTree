@@ -11,9 +11,7 @@
     where id = <cfqueryparam value="#local.inputId#" cfsqltype="cf_sql_integer" />
 </cfquery>
 
-<cfloop query="get_parent_locations">
-    <cfset processTreeNode(location_Id=get_parent_locations.location_Id,inputId = local.inputId) />
-</cfloop>
+<cfset processTreeNode(location_Id=get_parent_locations.location_Id,inputId = local.inputId) />
 
 <cffunction name="processTreeNode" output="true">
     <cfargument name="location_Id" type="numeric" />
@@ -23,17 +21,20 @@
         from get_locations
         where parent_id = <cfqueryparam value="#arguments.location_Id#" cfsqltype="cf_sql_integer" />
     </cfquery>
-    <cfif arguments.location_Id NEQ  arguments.inputId>
-        <cfset childLists = ListAppend('#arguments.location_Id#','')>
-        
-         #childLists# 
-    </cfif>
-            <cfif LOCAL.qFindChildren.recordcount>
+        <cfif LOCAL.qFindChildren.recordcount>
                     <cfloop query="LOCAL.qFindChildren">
                         <!--- Recursively call function --->
                         <cfset processTreeNode(location_Id=LOCAL.qFindChildren.locationId,inputId = arguments.inputId) />
                     </cfloop>
-            </cfif>
+        </cfif>
+        <cfif arguments.location_Id NEQ  arguments.inputId>
+            <cfset local.childLists = ListAppend('#arguments.location_Id#','')> 
+            <cfset FinalResult(childList=local.childLists) />
+        </cfif>
+</cffunction>
 
+<cffunction name="FinalResult" output="true">
+   <cfargument name="childList" type="string" />
+        #arguments.childList#
 </cffunction>
 

@@ -1,5 +1,4 @@
 <cfset local.inputId = 5/>
-<cfset local.parent_lists = "">
 <cfquery name="get_locations">
     select id, parent_id, location_name 
     from location_tree
@@ -38,5 +37,5 @@
 <cffunction name="FinalResult" output="true">
    <cfargument name="parentidList" type="string" /> 
    <cfset local.parent_lists = ListAppend('#arguments.parentidList#','')>
-        #local.parent_lists#
+        #arguments.local.parent_lists#
 </cffunction>
